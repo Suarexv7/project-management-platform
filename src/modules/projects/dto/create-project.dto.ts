@@ -4,7 +4,7 @@ import {
     IsString,
     IsOptional,
 } from 'class-validator';
-import { Project } from '../entities/project.entity';
+import { Project } from '../../../domain/entities/project.entity';
 
 export class CreateProjectDto {
     @ApiProperty()
