@@ -16,8 +16,14 @@ import {
     ApiParam,
     ApiResponse,
 } from '@nestjs/swagger';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+
+
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
 
 @ApiTags('Projects')
 @ApiBearerAuth()
