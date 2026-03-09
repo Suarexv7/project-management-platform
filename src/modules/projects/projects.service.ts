@@ -134,10 +134,39 @@ export class ProjectsService {
 
         }
 
-
-
         project.status = ProjectStatus.ACTIVE;
 
         return await this.projectRepo.save(project);
+    }
+
+    async deleteProject(id: number): Promise<void> {
+        const project = await this.projectRepo.findOne({
+            where: { id },
+        });
+
+        if (!project) {
+            throw new NotFoundException(`Project with ID ${id} not found`);
+        }
+
+        await this.projectRepo.delete(id);
+    }
+
+    async searchProjects(status?: string, page: number = 1, pageSize: number = 10) {
+        const where = status ? { status: status as any } : {};
+
+        const [projects, total] = await this.projectRepo.findAndCount({
+            where,
+            relations: ['tasks'],
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+        });
+
+        return {
+            data: projects,
+            total,
+            page,
+            pageSize,
+            totalPages: Math.ceil(total / pageSize),
+        };
     }
 }

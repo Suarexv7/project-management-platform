@@ -21,6 +21,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ReorderTaskDto } from './dto/reorder-task.dto';
 
 
 @UseGuards(AuthGuard('jwt'))
@@ -79,5 +80,17 @@ export class TasksController {
     @ApiResponse({ status: 404, description: 'Tarea no encontrada' })
     complete(@Param('id', ParseIntPipe) id: number) {
         return this.tasksService.completeTask(id);
+    }
+
+    @Patch('tasks/:id/reorder')
+    @ApiOperation({ summary: 'Cambiar el orden de una tarea dentro de su proyecto' })
+    @ApiParam({ name: 'id', type: Number, description: 'ID de la tarea a mover' })
+    @ApiResponse({ status: 200, description: 'Tareas reordenadas correctamente' })
+    @ApiResponse({ status: 404, description: 'Tarea no encontrada' })
+    reorder(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() reorderTaskDto: ReorderTaskDto // Aquí recibes el objeto { newOrder: 5 }
+    ) {
+        return this.tasksService.reorderTask(id, reorderTaskDto.newOrder);
     }
 }
