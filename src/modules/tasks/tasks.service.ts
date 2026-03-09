@@ -1,10 +1,8 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
 import { Project } from '../../domain/entities/project.entity';
 import { TaskItem } from '../../domain/entities/task.entity';
-
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 
@@ -53,8 +51,6 @@ export class TasksService {
         return await this.taskRepo.save(task);
     }
 
-    // ... (imports y constructor se mantienen igual)
-
     // 1. Obtener todas las tareas de un proyecto ordenadas
     async getTasksByProject(projectId: number): Promise<TaskItem[]> {
         return await this.taskRepo.find({
@@ -63,7 +59,7 @@ export class TasksService {
         });
     }
 
-    // 2. Actualizar una tarea (Patrón findOne + NotFound + Object.assign + save)
+    // 2. Actualizar una tarea
     async updateTask(id: number, updateTaskDto: UpdateTaskDto): Promise<TaskItem> {
         const task = await this.taskRepo.findOneBy({ id });
 
@@ -77,7 +73,7 @@ export class TasksService {
         return await this.taskRepo.save(task);
     }
 
-    // 3. Eliminar una tarea (Patrón findOne + NotFound + remove)
+    // 3. Eliminar una tarea
     async deleteTask(id: number): Promise<void> {
         const task = await this.taskRepo.findOneBy({ id });
 

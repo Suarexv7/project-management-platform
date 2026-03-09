@@ -22,7 +22,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 
 @ApiTags('Tasks')
 @ApiBearerAuth()
-@Controller() // Sin prefijo global para permitir las rutas jerárquicas de proyectos
+@Controller()
 export class TasksController {
 
     constructor(private readonly tasksService: TasksService) { }

@@ -6,6 +6,9 @@ import { ValidationPipe } from '@nestjs/common'; // 1. Importación necesaria
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  //Prefijo global para todas las rutas
+  app.setGlobalPrefix('api');
+
   // 2. Activación global de validaciones
   // whitelist: true descarta propiedades que no estén en el DTO
   // forbidNonWhitelisted: lanza error si envían propiedades extra
