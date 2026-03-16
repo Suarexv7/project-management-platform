@@ -53,7 +53,7 @@ export class TasksService {
     // 1. Obtener todas las tareas de un proyecto ordenadas
     async getTasksByProject(projectId: number): Promise<TaskItem[]> {
         return await this.taskRepo.find({
-            where: { project: { id: projectId } },
+            where: { projectId: projectId },
             order: { order: 'ASC' } // Orden ascendente por el campo 'order'
         });
     }
@@ -94,6 +94,16 @@ export class TasksService {
         task.isCompleted = true; // Cambiamos el estado
 
         return await this.taskRepo.save(task);
+    }
+
+    async findOne(id: number): Promise<TaskItem> {
+        const task = await this.taskRepo.findOne({
+            where: { id },
+        });
+        if (!task) {
+            throw new NotFoundException(`Task with ID ${id} not found`);
+        }
+        return task;
     }
 
     async reorderTask(id: number, newOrder: number): Promise<TaskItem[]> {

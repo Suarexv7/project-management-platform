@@ -11,5 +11,6 @@ import { TaskItem } from 'src/domain/entities/task.entity';
   ],
   controllers: [ProjectsController],
   providers: [ProjectsService],
+  exports: [ProjectsService],
 })
 export class ProjectsModule { }

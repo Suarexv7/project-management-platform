@@ -88,7 +88,7 @@ export class ProjectsService {
             relations: ['tasks'],
         });
 
-        // 2. Validación de existencia (el patrón que ya dominas)
+        // 2. Validación de existencia
         if (!project) {
             throw new NotFoundException(`Project with ID ${id} not found`);
         }
@@ -148,6 +148,10 @@ export class ProjectsService {
             throw new NotFoundException(`Project with ID ${id} not found`);
         }
 
+        // Primero eliminamos todas las tareas del proyecto
+        await this.taskRepo.delete({ projectId: id });
+
+        // Luego eliminamos el proyecto
         await this.projectRepo.delete(id);
     }
 

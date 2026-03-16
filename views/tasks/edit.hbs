@@ -1,0 +1,24 @@
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="mb-4">✏️ Editar Tarea</h2>
+        <form action="/web/tasks/{{task.id}}/edit" method="POST">
+            <input type="hidden" name="projectId" value="{{task.projectId}}">
+            <div class="mb-3">
+                <label class="form-label">Título *</label>
+                <input type="text" name="title" class="form-control" value="{{task.title}}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Prioridad</label>
+                <select name="priority" class="form-select">
+                    <option value="low" {{#if (eq task.priority 'low' )}}selected{{/if}}>Low</option>
+                    <option value="medium" {{#if (eq task.priority 'medium' )}}selected{{/if}}>Medium</option>
+                    <option value="high" {{#if (eq task.priority 'high' )}}selected{{/if}}>High</option>
+                </select>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                <a href="/web/projects/{{task.projectId}}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>

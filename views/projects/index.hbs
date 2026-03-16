@@ -1,0 +1,32 @@
+<h2 class="mb-4">📋 Proyectos</h2>
+
+{{#if projects.length}}
+<div class="row">
+    {{#each projects}}
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{name}}</h5>
+                <p class="card-text text-muted">{{description}}</p>
+                <span class="badge 
+                        {{#if (eq status 'draft')}}bg-secondary{{/if}}
+                        {{#if (eq status 'active')}}bg-success{{/if}}
+                        {{#if (eq status 'completed')}}bg-primary{{/if}}">
+                    {{status}}
+                </span>
+            </div>
+            <div class="card-footer">
+                <a href="/web/projects/{{id}}" class="btn btn-sm btn-outline-primary">
+                    Ver detalle
+                </a>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+</div>
+{{else}}
+<div class="alert alert-info">
+    No hay proyectos todavía.
+    <a href="/web/projects/new">Crea el primero</a>
+</div>
+{{/if}}

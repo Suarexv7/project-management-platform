@@ -30,6 +30,6 @@ import { JwtStrategy } from './strategies/jwt-auth.strategy';
   // 2. Registramos la estrategia y el servicio
   providers: [AuthService, JwtStrategy],
   // 3. Exportamos para que otros módulos (como Projects) puedan usar la seguridad
-  exports: [JwtStrategy, PassportModule],
+  exports: [JwtStrategy, PassportModule, AuthService],
 })
 export class AuthModule { }

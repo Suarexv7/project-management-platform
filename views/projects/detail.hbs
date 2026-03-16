@@ -1,0 +1,150 @@
+<div class="mb-4">
+    <a href="/web/projects" class="btn btn-outline-secondary btn-sm">← Volver</a>
+</div>
+
+<!-- Info del proyecto -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h2>{{summary.name}}
+            <a href="/web/projects/{{summary.id}}/edit" class="btn btn-sm btn-outline-warning">✏️ Editar</a>
+        </h2> <span class="badge 
+            {{#if (eq summary.status 'draft')}}bg-secondary{{/if}}
+            {{#if (eq summary.status 'active')}}bg-success{{/if}}
+            {{#if (eq summary.status 'completed')}}bg-primary{{/if}}">
+            {{summary.status}}
+        </span>
+
+        <!-- Botones de acción -->
+        <!-- Botones de acción -->
+        <div class="mt-3 d-flex gap-2">
+            {{#if (eq summary.status 'draft')}}
+            <form action="/web/projects/{{summary.id}}/activate" method="POST">
+                <button class="btn btn-success btn-sm">✅ Activar proyecto</button>
+            </form>
+            {{/if}}
+            {{#if (eq summary.status 'active')}}
+            <form action="/web/projects/{{summary.id}}/complete" method="POST">
+                <button class="btn btn-primary btn-sm">✅ Completar proyecto</button>
+            </form>
+            {{/if}}
+            <form action="/web/projects/{{summary.id}}/delete" method="POST" class="d-inline">
+                <button class="btn btn-danger btn-sm"
+                    onclick="return confirm('¿Estás seguro de eliminar este proyecto?')">
+                    🗑 Eliminar proyecto
+                </button>
+            </form>
+        </div>
+
+        <!-- Summary -->
+        <div class="row mt-3">
+            <div class="col-md-3">
+                <div class="card text-center bg-light">
+                    <div class="card-body">
+                        <h3>{{summary.totalTasks}}</h3>
+                        <p class="mb-0">Total tareas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-success text-white">
+                    <div class="card-body">
+                        <h3>{{summary.completedTasks}}</h3>
+                        <p class="mb-0">Completadas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de tareas -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">📝 Tareas</h5>
+    </div>
+    <div class="card-body">
+        {{#if tasks.length}}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Título</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each tasks}}
+                <tr>
+                    <td>{{order}}</td>
+                    <td>{{title}}</td>
+                    <td>
+                        <span class="badge
+                            {{#if (eq priority 'high')}}bg-danger{{/if}}
+                            {{#if (eq priority 'medium')}}bg-warning{{/if}}
+                            {{#if (eq priority 'low')}}bg-secondary{{/if}}">
+                            {{priority}}
+                        </span>
+                    </td>
+                    <td>
+                        {{#if isCompleted}}
+                        <span class="badge bg-success">Completada</span>
+                        {{else}}
+                        <span class="badge bg-secondary">Pendiente</span>
+                        {{/if}}
+                    </td>
+                    <td>
+                        {{#unless isCompleted}}
+                        <form action="/web/tasks/{{id}}/complete" method="POST" class="d-inline">
+                            <input type="hidden" name="projectId" value="{{../summary.id}}">
+                            <button class="btn btn-sm btn-success">✔</button>
+                        </form>
+                        {{/unless}}
+                        <a href="/web/tasks/{{id}}/edit" class="btn btn-sm btn-outline-warning">✏️</a>
+                        <form action="/web/tasks/{{id}}/delete" method="POST" class="d-inline">
+                            <input type="hidden" name="projectId" value="{{../summary.id}}">
+                            <button class="btn btn-sm btn-danger">🗑</button>
+                        </form>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        {{else}}
+        <p class="text-muted">No hay tareas todavía.</p>
+        {{/if}}
+    </div>
+</div>
+
+<!-- Formulario agregar tarea -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">➕ Agregar Tarea</h5>
+    </div>
+    <div class="card-body">
+        <form action="/web/projects/{{summary.id}}/tasks" method="POST">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Título *</label>
+                    <input type="text" name="title" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Prioridad</label>
+                    <select name="priority" class="form-select">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Order *</label>
+                    <input type="number" name="order" class="form-control" min="1" required>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Agregar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

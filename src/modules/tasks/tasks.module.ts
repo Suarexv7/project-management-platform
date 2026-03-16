@@ -10,6 +10,7 @@ import { TaskItem } from 'src/domain/entities/task.entity';
     TypeOrmModule.forFeature([Project, TaskItem]),
   ],
   controllers: [TasksController],
-  providers: [TasksService]
+  providers: [TasksService],
+  exports: [TasksService]
 })
 export class TasksModule { }
