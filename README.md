@@ -1,6 +1,6 @@
 # Project Management Platform
 
-REST API backend para gestión de proyectos y tareas, construida con **NestJS**, **TypeORM** y **PostgreSQL**.
+Backend monolítico construido con **NestJS**, **TypeORM** y **PostgreSQL** que expone una **API REST** y una **interfaz web SSR** compartiendo exactamente la misma lógica de negocio.
 
 ---
 
@@ -13,17 +13,27 @@ REST API backend para gestión de proyectos y tareas, construida con **NestJS**,
 - [Instalación](#instalación)
 - [Variables de entorno](#variables-de-entorno)
 - [Ejecutar la aplicación](#ejecutar-la-aplicación)
+- [Interfaz Web](#interfaz-web)
 - [Documentación API (Swagger)](#documentación-api-swagger)
 - [Endpoints](#endpoints)
 - [Reglas de negocio](#reglas-de-negocio)
 - [Tests](#tests)
 - [Credenciales de prueba](#credenciales-de-prueba)
+- [Modelo de datos](#modelo-de-datos)
 
 ---
 
 ## Descripción
 
-Plataforma backend para gestionar proyectos y sus tareas. Permite crear proyectos, asignarles tareas, controlar su estado mediante reglas de negocio y expone una API REST segura con autenticación JWT.
+Plataforma para gestionar proyectos y sus tareas. El sistema permite:
+
+- Crear y gestionar proyectos con estados controlados (`Draft → Active → Completed`)
+- Asignar tareas a proyectos con prioridades y orden único
+- Controlar el flujo de trabajo mediante reglas de negocio estrictas
+- Acceder mediante una **API REST** con autenticación JWT
+- Acceder mediante una **interfaz web** con autenticación por sesiones
+
+> La interfaz web **NO consume la API vía HTTP**. Tanto los controllers web como los controllers REST consumen los **mismos servicios**, garantizando que la lógica de negocio no se duplique.
 
 ---
 
@@ -35,7 +45,10 @@ Plataforma backend para gestionar proyectos y sus tareas. Permite crear proyecto
 | NestJS | 11 | Framework backend |
 | TypeORM | 0.3 | ORM |
 | PostgreSQL | 14+ | Base de datos |
-| JWT + Passport | - | Autenticación |
+| JWT + Passport | - | Autenticación API REST |
+| express-session | - | Autenticación interfaz web |
+| Handlebars (hbs) | - | Motor de plantillas SSR |
+| Bootstrap | 5.3 | Estilos interfaz web |
 | Swagger | 11 | Documentación API |
 | Jest | 30 | Tests unitarios |
 | bcrypt | 6 | Encriptación de contraseñas |
@@ -74,17 +87,37 @@ src
  │   │   ├── projects.service.ts
  │   │   └── projects.module.ts
  │   │
- │   └── tasks
- │       ├── dto
- │       │   ├── create-task.dto.ts
- │       │   ├── update-task.dto.ts
- │       │   └── reorder-task.dto.ts
- │       ├── tasks.controller.ts
- │       ├── tasks.service.ts
- │       └── tasks.module.ts
+ │   ├── tasks
+ │   │   ├── dto
+ │   │   │   ├── create-task.dto.ts
+ │   │   │   ├── update-task.dto.ts
+ │   │   │   └── reorder-task.dto.ts
+ │   │   ├── tasks.controller.ts
+ │   │   ├── tasks.service.ts
+ │   │   └── tasks.module.ts
+ │   │
+ │   └── web
+ │       ├── web.controller.ts      # Controller SSR — consume los mismos servicios
+ │       └── web.module.ts
  │
  ├── app.module.ts
  └── main.ts
+
+views                               # Plantillas Handlebars
+ ├── layouts
+ │   └── main.hbs                   # Layout principal con navbar
+ ├── auth
+ │   ├── login.hbs
+ │   └── register.hbs
+ ├── projects
+ │   ├── index.hbs                  # Lista de proyectos
+ │   ├── detail.hbs                 # Detalle con tareas
+ │   ├── new.hbs                    # Formulario crear
+ │   └── edit.hbs                   # Formulario editar
+ └── tasks
+     └── edit.hbs                   # Formulario editar tarea
+
+public                              # Archivos estáticos CSS/JS
 ```
 
 ---
@@ -140,7 +173,7 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=tu_contraseña
 POSTGRES_DB=project_management
 
-# JWT
+# JWT (para la API REST)
 JWT_SECRET=este_es_un_secreto_muy_largo_y_seguro_2024
 JWT_EXPIRES_IN=24h
 ```
@@ -171,6 +204,59 @@ http://localhost:3000
 ```
 
 > Las tablas se crean automáticamente gracias a `synchronize: true` en TypeORM. No se necesitan migraciones en desarrollo.
+
+---
+
+## Interfaz Web
+
+La interfaz web está disponible en:
+
+```
+http://localhost:3000/web/projects
+```
+
+> Si no has iniciado sesión, serás redirigido automáticamente al login.
+
+### Páginas disponibles
+
+| URL | Descripción |
+|---|---|
+| `/web/auth/login` | Iniciar sesión |
+| `/web/auth/register` | Registrarse |
+| `/web/projects` | Lista de proyectos |
+| `/web/projects/new` | Crear proyecto |
+| `/web/projects/:id` | Detalle del proyecto con tareas |
+| `/web/projects/:id/edit` | Editar proyecto |
+| `/web/tasks/:id/edit` | Editar tarea |
+| `/web/auth/logout` | Cerrar sesión |
+
+### Funcionalidades de la interfaz web
+
+**Proyectos:**
+- Ver todos los proyectos con su estado
+- Crear nuevo proyecto
+- Editar nombre y descripción
+- Activar proyecto (requiere al menos una tarea)
+- Completar proyecto (requiere todas las tareas completadas)
+- Eliminar proyecto (elimina también sus tareas en cascada)
+
+**Tareas:**
+- Ver tareas ordenadas por `order`
+- Agregar nueva tarea con título, prioridad y order
+- Editar título y prioridad
+- Marcar como completada
+- Eliminar tarea
+
+### Flujo recomendado en la interfaz web
+
+1. Ir a `/web/auth/register` y crear una cuenta
+2. Iniciar sesión con tus credenciales
+3. Crear un proyecto desde el botón **+ Nuevo Proyecto**
+4. Entrar al detalle del proyecto
+5. Agregar al menos una tarea
+6. Activar el proyecto con **✅ Activar proyecto**
+7. Completar las tareas con **✔**
+8. Completar el proyecto con **🏁 Completar proyecto**
 
 ---
 
@@ -235,26 +321,21 @@ Un proyecto solo puede activarse si:
 - Tiene al menos una tarea asociada
 - Su estado actual es `DRAFT`
 
-```
-PATCH /api/projects/{id}/activate
-```
-
 ### 2. Completar proyecto
 Un proyecto solo puede completarse si:
 - Todas sus tareas tienen `isCompleted: true`
 - Su estado actual es `ACTIVE`
 
-```
-PATCH /api/projects/{id}/complete
-```
-
 ### 3. Order único por proyecto
-Al crear una tarea, el campo `order` debe ser único dentro del mismo proyecto. No pueden existir dos tareas con el mismo `order` en un proyecto.
+Al crear una tarea, el campo `order` debe ser único dentro del mismo proyecto.
 
 ### 4. Reordenamiento sin duplicados
 Al reordenar una tarea, el sistema recalcula automáticamente el `order` de todas las tareas del proyecto para evitar duplicados.
 
-### 5. Summary endpoint
+### 5. Eliminar proyecto en cascada
+Al eliminar un proyecto, se eliminan automáticamente todas sus tareas asociadas.
+
+### 6. Summary endpoint
 Devuelve información calculada del proyecto:
 
 ```json
@@ -280,35 +361,73 @@ npm run test
 ### Ejecutar tests con cobertura
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run test:cov
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Tests implementados
 
-## Resources
+| Test | Descripción |
+|---|---|
+| `ActivateProject_WithTasks_ShouldSucceed` | Activar proyecto con tareas debe funcionar |
+| `ActivateProject_WithoutTasks_ShouldFail` | No debe activarse sin tareas |
+| `CompleteProject_WithPendingTasks_ShouldFail` | No debe completarse con tareas pendientes |
+| `CreateTask_WithDuplicateOrder_ShouldFail` | No permite order duplicado en el mismo proyecto |
+| `DeleteProject_ShouldBeDelete` | Eliminar proyecto debe funcionar correctamente |
 
-Check out a few resources that may come in handy when working with NestJS:
+Todos los tests son **unitarios**, usan **mocks** de los repositorios y no requieren base de datos.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+## Credenciales de prueba
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Puedes registrar un usuario directamente desde la interfaz web en `/web/auth/register` o desde Swagger:
 
-## Stay in touch
+```json
+{
+  "email": "admin@test.com",
+  "password": "123456",
+  "name": "Admin User"
+}
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+## Modelo de datos
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Project
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| id | number | Identificador único |
+| name | string | Nombre del proyecto (max 255) |
+| description | string (opcional) | Descripción |
+| status | enum | `draft` \| `active` \| `completed` |
+| createdAt | Date | Fecha de creación (automática) |
+| updatedAt | Date | Fecha de actualización (automática) |
+
+### TaskItem
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| id | number | Identificador único |
+| title | string | Título de la tarea (max 150) |
+| priority | enum | `low` \| `medium` \| `high` |
+| order | number | Posición única dentro del proyecto |
+| isCompleted | boolean | Estado de completado (default: false) |
+| projectId | number | ID del proyecto al que pertenece |
+
+### User
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| id | number | Identificador único |
+| name | string | Nombre del usuario |
+| email | string | Email único |
+| password | string | Contraseña encriptada con bcrypt |
+| createdAt | Date | Fecha de creación (automática) |
+
+---
+
+## Autor
+
+Desarrollado como parte de un assessment técnico de NestJS.
