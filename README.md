@@ -280,77 +280,35 @@ npm run test
 ### Ejecutar tests con cobertura
 
 ```bash
-npm run test:cov
+$ npm install -g @nestjs/mau
+$ mau deploy
 ```
 
-### Tests implementados
+With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
-| Test | Descripción |
-|---|---|
-| `ActivateProject_WithTasks_ShouldSucceed` | Activar proyecto con tareas debe funcionar |
-| `ActivateProject_WithoutTasks_ShouldFail` | No debe activarse sin tareas |
-| `CompleteProject_WithPendingTasks_ShouldFail` | No debe completarse con tareas pendientes |
-| `CreateTask_WithDuplicateOrder_ShouldFail` | No permite order duplicado en el mismo proyecto |
-| `DeleteProject_ShouldBeDelete` | Eliminar proyecto debe funcionar correctamente |
+## Resources
 
-Todos los tests son **unitarios**, usan **mocks** de los repositorios y no requieren base de datos.
+Check out a few resources that may come in handy when working with NestJS:
 
----
+- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
+- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
+- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
+- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
+- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
+- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
+- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
+- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
 
-## Credenciales de prueba
+## Support
 
-Puedes registrar un usuario directamente desde Swagger o usar estas credenciales después de registrarlas:
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
-```json
-{
-  "email": "admin@test.com",
-  "password": "123456",
-  "name": "Admin User"
-}
-```
+## Stay in touch
 
----
+- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
 
-## Flujo de prueba recomendado
+## License
 
-1. Registrar usuario → `POST /api/auth/register`
-2. Login → `POST /api/auth/login` → copiar `access_token`
-3. Autorizar en Swagger con el token
-4. Crear proyecto → `POST /api/projects`
-5. Crear tareas → `POST /api/projects/1/tasks`
-6. Activar proyecto → `PATCH /api/projects/1/activate`
-7. Completar tareas → `PATCH /api/tasks/1/complete`
-8. Completar proyecto → `PATCH /api/projects/1/complete`
-9. Ver resumen → `GET /api/projects/1/summary`
-
----
-
-## Modelo de datos
-
-### Project
-
-| Campo | Tipo | Descripción |
-|---|---|---|
-| id | number | Identificador único |
-| name | string | Nombre del proyecto |
-| description | string (opcional) | Descripción |
-| status | enum | `draft` \| `active` \| `completed` |
-| createdAt | Date | Fecha de creación (automática) |
-| updatedAt | Date | Fecha de actualización (automática) |
-
-### TaskItem
-
-| Campo | Tipo | Descripción |
-|---|---|---|
-| id | number | Identificador único |
-| title | string | Título de la tarea |
-| priority | enum | `low` \| `medium` \| `high` |
-| order | number | Posición única dentro del proyecto |
-| isCompleted | boolean | Estado de completado |
-| projectId | number | ID del proyecto al que pertenece |
-
----
-
-## Autor
-
-Desarrollado como parte de un assessment técnico de NestJS.
+Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
